@@ -12,7 +12,7 @@ class JsonResource {
   final DBType dbType = DBType.JSON;
 
   Future<bool> exists() async {
-    return await _client.resourceExists(dbName, name);
+    return await _client.resourceExists(dbName, dbType, name);
   }
 
   Future<dynamic> create(String data) async {
@@ -43,5 +43,9 @@ class JsonResource {
   Future<Stream<String>> readAsStream() {
     //TODO implement params
     return _client.readResource(dbName, dbType, name);
+  }
+
+  Future<bool> deleteResource() {
+    return _client.resourceDelete(dbName, dbType, name);
   }
 }

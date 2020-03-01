@@ -88,12 +88,12 @@ class Client {
     return response.statusCode;
   }
 
-  Future<bool> resourceExists(String dbName, String name) async {
-    //TODO: do we need dbType here as well?
+  Future<bool> resourceExists(String dbName, DBType dbType, String name) async {
     var request =
         await _httpClient.headUrl(sirixUri.replace(path: '$dbName/$name'));
     request.headers
-        .add('Authorization', 'Bearer ${_auth.tokenData.access_token}');
+      ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
+      ..add('Accept', dbType.mime);
     var response = await request.close();
     // we only need the status code
     unawaited(response.drain());
@@ -105,12 +105,13 @@ class Client {
   }
 
   Future<String> createResource(
-      String dbName, DBType dbType, String name, String data) async {
+      String dbName, DBType dbType, String name, String creationData) async {
     var request =
-        await _httpClient.postUrl(sirixUri.replace(path: '$dbName/$name'));
+        await _httpClient.putUrl(sirixUri.replace(path: '$dbName/$name'));
     request.headers
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Content-Type', dbType.mime);
+    request.write(creationData);
     var response = await request.close();
     var content = await response.transform(utf8.decoder);
     var data = await content.toList();
@@ -137,5 +138,23 @@ class Client {
       ..add('Content-Type', dbType.mime);
     var response = await request.close();
     return await response.transform(utf8.decoder);
+  }
+
+  Future<bool> resourceDelete(String dbName, DBType dbType, String name,
+      {Map<String, String> params}) async {
+    // TODO add param handling
+    var request =
+        await _httpClient.deleteUrl(sirixUri.replace(path: '$dbName/$name'));
+    request.headers
+      ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
+      ..add('Content-Type', dbType.mime);
+    var response  = await request.close();
+    if (response.statusCode != 204) {
+      var error = await response.transform(utf8.decoder).toList();
+      print(error.join());
+      return false;
+    }
+    unawaited(response.drain());
+    return true;
   }
 }

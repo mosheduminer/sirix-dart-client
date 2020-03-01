@@ -117,6 +117,7 @@ void main() {
     HttpClient client;
     Auth auth;
     Sirix sirix;
+    JsonDatabase jsonDatabase;
     JsonResource jsonResource;
 
     setUp(() async {
@@ -125,19 +126,38 @@ void main() {
       auth = Auth(sirixUri, login, client);
       sirix = Sirix(sirixUri, auth);
       await auth.authenticate();
-      var database = sirix.jsonDatabase('First');
-      jsonResource = database.resource('testJsonResource');
+      jsonDatabase = sirix.jsonDatabase('First');
+      jsonResource = jsonDatabase.resource('testJsonResource');
     });
 
-    test('test exists method', () async {
+    test('exists method', () async {
       var exists = await jsonResource.exists();
       expect(exists, isFalse);
     });
 
-    test('test create method', () async {
+    test('create method', () async {
       var data = await jsonResource.create('[]');
-      expect(data, equals('[]'));
+      expect(data, equals([]));
       expect(await jsonResource.exists(), isTrue);
+    });
+
+    test('delete method on nonexistent resource', () async {
+      var dummyJsonResource = jsonDatabase.resource('dummy');
+      var status = await dummyJsonResource.deleteResource();
+      expect(status, isFalse);
+    });
+
+    test('delete method on existing resource', () async {
+      /// this line is here make sure that the resource 
+      /// exist already, we can't rely the earlier tests.
+      await jsonResource.create('[]');
+      var status = await jsonResource.deleteResource();
+      expect(status, isTrue);
+    });
+
+    tearDown(() {
+      sirix.deleteEverything();
+      client.close();
     });
   });
 }
