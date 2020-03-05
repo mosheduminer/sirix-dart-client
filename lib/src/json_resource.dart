@@ -33,16 +33,58 @@ class JsonResource {
     return null;
   }
 
-  Future<dynamic> read() async {
-    //TODO implement params
-    var content = await _client.readResource(dbName, dbType, name);
-    var data = await content.toList();
-    return jsonDecode(await data.join());
+  Future<dynamic> read(
+      {bool withMetadata,
+      int maxLevel,
+      int nodeId,
+      int revision,
+      int startRevision,
+      int endRevision,
+      DateTime revisionTimestamp,
+      DateTime startRevisionTimestamp,
+      DateTime endRevisionTimestamp}) async {
+    var params = {
+      'withMetadata': withMetadata?.toString(),
+      'maxLevel': maxLevel?.toString(),
+      'nodeId': nodeId?.toString(),
+      'revision': revision?.toString(),
+      'startRevision': startRevision?.toString(),
+      'endRevision': endRevision?.toString(),
+      'revisionTimestamp': revisionTimestamp?.toIso8601String(),
+      'startRevisionTimestamp': startRevisionTimestamp?.toIso8601String(),
+      'endRevisionTimestamp': endRevisionTimestamp?.toIso8601String()
+    };
+    params.removeWhere((key, value) => value == null);
+    print(jsonEncode(params));
+    var content =
+        await _client.readResource(dbName, dbType, name, params: params);
+    var data = await content?.toList();
+    return await data?.join();
   }
 
-  Future<Stream<String>> readAsStream() {
-    //TODO implement params
-    return _client.readResource(dbName, dbType, name);
+  Future<Stream<String>> readAsStream(
+      {bool withMetadata,
+      int maxLevel,
+      int nodeId,
+      int revision,
+      int startRevision,
+      int endRevision,
+      DateTime revisionTimestamp,
+      DateTime startRevisionTimestamp,
+      DateTime endRevisionTimestamp}) {
+    var params = {
+      'withMetadata': withMetadata?.toString(),
+      'maxLevel': maxLevel?.toString(),
+      'nodeId': nodeId?.toString(),
+      'revision': revision?.toString(),
+      'start-revision': startRevision?.toString(),
+      'end-revision': endRevision?.toString(),
+      'revision-timestamp': revisionTimestamp?.toIso8601String(),
+      'start-revision-timestamp': startRevisionTimestamp?.toIso8601String(),
+      'end-revision-timestamp': endRevisionTimestamp?.toIso8601String()
+    };
+    params.removeWhere((key, value) => value == null);
+    return _client.readResource(dbName, dbType, name, params: params);
   }
 
   Future<bool> deleteResource() {

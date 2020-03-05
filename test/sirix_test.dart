@@ -148,11 +148,21 @@ void main() {
     });
 
     test('delete method on existing resource', () async {
-      /// this line is here make sure that the resource 
-      /// exist already, we can't rely the earlier tests.
       await jsonResource.create('[]');
       var status = await jsonResource.deleteResource();
       expect(status, isTrue);
+    });
+
+    test('read resource', () async {
+      await jsonResource.create('[]');
+      var data = await jsonResource.read();
+      expect(data, equals('[]'));
+    });
+
+    test('read resource as stream', () async {
+      await jsonResource.create('[]');
+      var stream = await jsonResource.readAsStream();
+      expect(stream, emits('[]'));
     });
 
     tearDown(() {

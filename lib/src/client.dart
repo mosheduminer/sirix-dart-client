@@ -130,13 +130,17 @@ class Client {
   /// implementation.
   Future<Stream<String>> readResource(String dbName, DBType dbType, String name,
       {Map<String, String> params}) async {
-    //TODO implement params
-    var request =
-        await _httpClient.getUrl(sirixUri.replace(path: '$dbName/$name'));
+    var request = await _httpClient.getUrl(
+        sirixUri.replace(path: '$dbName/$name', queryParameters: params));
     request.headers
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
-      ..add('Content-Type', dbType.mime);
+      ..add('Accept', dbType.mime);
     var response = await request.close();
+    if (response.statusCode != 200) {
+      var content = await response.transform(utf8.decoder).toList();
+      print(content.join());
+      return null;
+    }
     return await response.transform(utf8.decoder);
   }
 
@@ -148,7 +152,7 @@ class Client {
     request.headers
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Content-Type', dbType.mime);
-    var response  = await request.close();
+    var response = await request.close();
     if (response.statusCode != 204) {
       var error = await response.transform(utf8.decoder).toList();
       print(error.join());
