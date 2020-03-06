@@ -143,13 +143,13 @@ void main() {
 
     test('delete method on nonexistent resource', () async {
       var dummyJsonResource = jsonDatabase.resource('dummy');
-      var status = await dummyJsonResource.deleteResource();
+      var status = await dummyJsonResource.delete();
       expect(status, isFalse);
     });
 
     test('delete method on existing resource', () async {
       await jsonResource.create('[]');
-      var status = await jsonResource.deleteResource();
+      var status = await jsonResource.delete();
       expect(status, isTrue);
     });
 
@@ -163,6 +163,31 @@ void main() {
       await jsonResource.create('[]');
       var stream = await jsonResource.readAsStream();
       expect(stream, emits('[]'));
+    });
+
+    test('get etag', () async {
+      await jsonResource.create('[]');
+      var etag = await jsonResource.getEtag(1);
+      expect(etag, isA<String>());
+    });
+
+    test('get etag for nonexistent node', () async {
+      await jsonResource.create('[]');
+      var etag = await jsonResource.getEtag(5);
+      expect(etag, isNull);
+    });
+
+    test('delete by etag', () async {
+      await jsonResource.create('[]');
+      var etag = await jsonResource.getEtag(1);
+      var status = await jsonResource.delete(etag: etag);
+      expect(status, isTrue);
+    });
+
+    test('delete by nodeId', () async {
+      await jsonResource.create('[]');
+      var status = await jsonResource.delete(nodeId: 1);
+      expect(status, isTrue);
     });
 
     tearDown(() {

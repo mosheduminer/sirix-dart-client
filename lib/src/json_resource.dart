@@ -55,7 +55,6 @@ class JsonResource {
       'endRevisionTimestamp': endRevisionTimestamp?.toIso8601String()
     };
     params.removeWhere((key, value) => value == null);
-    print(jsonEncode(params));
     var content =
         await _client.readResource(dbName, dbType, name, params: params);
     var data = await content?.toList();
@@ -87,7 +86,21 @@ class JsonResource {
     return _client.readResource(dbName, dbType, name, params: params);
   }
 
-  Future<bool> deleteResource() {
-    return _client.resourceDelete(dbName, dbType, name);
+  Future<String> getEtag(int nodeId,
+      {int revision, DateTime revisionTimestamp}) {
+    var params = {
+      'nodeId': nodeId.toString(),
+      'revision': revision?.toString(),
+      'revision-timestamp': revisionTimestamp?.toIso8601String()
+    };
+    params.removeWhere((key, value) => value == null);
+    return _client.getEtag(dbName, dbType, name, params: params);
+  }
+
+  Future<bool> delete({String etag, int nodeId}) async {
+    if (nodeId != null && etag == null) {
+      etag = await getEtag(nodeId);
+    }
+    return _client.resourceDelete(dbName, dbType, name, etag);
   }
 }

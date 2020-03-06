@@ -144,11 +144,27 @@ class Client {
     return await response.transform(utf8.decoder);
   }
 
-  Future<bool> resourceDelete(String dbName, DBType dbType, String name,
+  Future<String> getEtag(String dbName, DBType dbType, String name,
       {Map<String, String> params}) async {
-    // TODO add param handling
-    var request =
-        await _httpClient.deleteUrl(sirixUri.replace(path: '$dbName/$name'));
+    var request = await _httpClient.getUrl(
+        sirixUri.replace(path: '$dbName/$name', queryParameters: params));
+    request.headers
+      ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
+      ..add('Accept', dbType.mime);
+    var response = await request.close();
+    var content = await response.transform(utf8.decoder);
+    var data = await content.toList();
+    if (response.statusCode != 200) {
+      print(data.join());
+      return null;
+    }
+    return data.join();
+  }
+
+  Future<bool> resourceDelete(
+      String dbName, DBType dbType, String name, String etag) async {
+    var request = await _httpClient
+        .deleteUrl(sirixUri.replace(path: '$dbName/$name', query: etag ?? ''));
     request.headers
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Content-Type', dbType.mime);
