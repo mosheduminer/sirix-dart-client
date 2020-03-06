@@ -15,17 +15,9 @@ class JsonResource {
     return await _client.resourceExists(dbName, dbType, name);
   }
 
-  Future<dynamic> create(String data) async {
-    var response = await _client.createResource(dbName, dbType, name, data);
-    if (response == null) {
-      return response;
-    }
-    try {
-      return jsonDecode(response);
-    } catch (e) {
-      print(e);
-      return null;
-    }
+  Future<String> create(String data) async {
+    return await _client.createResource(dbName, dbType, name, data);
+    
   }
 
   Future<dynamic> update(int nodeId, String data, Insert insert) {

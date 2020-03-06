@@ -137,7 +137,7 @@ void main() {
 
     test('create method', () async {
       var data = await jsonResource.create('[]');
-      expect(data, equals([]));
+      expect(data, equals('[]'));
       expect(await jsonResource.exists(), isTrue);
     });
 
