@@ -181,7 +181,6 @@ void main() {
       await jsonResource.create('[{}]');
       var etag = await jsonResource.getEtag(2);
       var status = await jsonResource.delete(nodeId: 2, etag: etag);
-      print(await jsonResource.read());
       expect(status, isTrue);
       var node = await jsonResource.read(nodeId: 2);
       expect(node, isNull);
