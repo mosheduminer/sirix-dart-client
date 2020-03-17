@@ -1,11 +1,13 @@
-import './client.dart';
+import 'package:meta/meta.dart';
 
+import './client.dart';
 import './data_classes.dart';
 
 
 class BaseDatabase {
   BaseDatabase(this.name, this.databasesInfo, this.client);
   final String name;
+  @protected
   final Client client;
   List<DatabaseInfo> databasesInfo;
   DBType dbType;

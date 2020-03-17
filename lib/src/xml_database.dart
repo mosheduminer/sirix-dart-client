@@ -1,12 +1,14 @@
-import 'dart:io';
+import './base_database.dart';
+import './xml_resource.dart';
+import './data_classes.dart';
 
-import 'package:sirix/sirix.dart';
+class XmlDatabase extends BaseDatabase {
+  XmlDatabase(name, databasesInfo, _client)
+      : super(name, databasesInfo, _client);
+  @override
+  DBType dbType = DBType.XML;
 
-class XmlDatabase {
-  XmlDatabase(this.name, this._httpClient, this.auth, this.sirixUri, this.databasesInfo);
-  final String name;
-  final HttpClient _httpClient;
-  Auth auth;
-  Uri sirixUri;
-  List<DatabaseInfo> databasesInfo;
+  XmlResource resource(String name) {
+    return XmlResource(name, this.name, databasesInfo, client);
+  }
 }
