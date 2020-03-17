@@ -1,5 +1,4 @@
-import 'package:sirix/src/xml_database.dart';
-
+import './xml_database.dart';
 import './json_database.dart';
 import './data_classes.dart';
 import './auth.dart';
