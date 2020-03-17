@@ -166,7 +166,7 @@ class Client {
     var request = await _httpClient.postUrl(sirixUri
         .replace(path: '$dbName/$name', queryParameters: {'nodeId': nodeId.toString()}));
     request.headers
-      ..add('etag', etag)
+      ..add('ETag', etag)
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Content-Type', dbType.mime);
     var response = await request.close();
