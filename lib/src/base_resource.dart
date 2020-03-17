@@ -9,8 +9,8 @@ class BaseResource {
   final String dbName;
   DBType dbType;
 
-  Future<bool> exists() async {
-    return await _client.resourceExists(dbName, dbType, name);
+  Future<bool> exists() {
+    return _client.resourceExists(dbName, dbType, name);
   }
 
   Future<String> create(String data) {
