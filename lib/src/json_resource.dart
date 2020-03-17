@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import './data_classes.dart';
 import './client.dart';
 
@@ -19,9 +17,11 @@ class JsonResource {
     return _client.createResource(dbName, dbType, name, data);
   }
 
-  Future<dynamic> update(int nodeId, String data, Insert insert) {
-    ///TODO
-    return null;
+  Future<dynamic> update(int nodeId, String data, Insert insert,
+      {String etag}) async {
+    etag ??= await getEtag(nodeId);
+    return await _client.update(
+        dbName, dbType, name, nodeId, insert.value, etag);
   }
 
   Future<dynamic> read(
@@ -88,10 +88,8 @@ class JsonResource {
     return _client.getEtag(dbName, dbType, name, params: params);
   }
 
-  Future<bool> delete({String etag, int nodeId}) async {
-    if (nodeId != null && etag == null) {
-      etag = await getEtag(nodeId);
-    }
-    return _client.resourceDelete(dbName, dbType, name, etag);
+  Future<bool> delete({int nodeId, String etag}) async {
+    etag ??= await getEtag(nodeId);
+    return _client.resourceDelete(dbName, dbType, name, nodeId, etag);
   }
 }

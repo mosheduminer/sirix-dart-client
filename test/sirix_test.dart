@@ -173,21 +173,47 @@ void main() {
 
     test('get etag for nonexistent node', () async {
       await jsonResource.create('[]');
-      var etag = await jsonResource.getEtag(5);
+      var etag = await jsonResource.getEtag(2);
       expect(etag, isNull);
     });
 
     test('delete by etag', () async {
-      await jsonResource.create('[]');
-      var etag = await jsonResource.getEtag(1);
-      var status = await jsonResource.delete(etag: etag);
+      await jsonResource.create('[{}]');
+      var etag = await jsonResource.getEtag(2);
+      var status = await jsonResource.delete(nodeId: 2, etag: etag);
+      print(await jsonResource.read());
       expect(status, isTrue);
+      var node = await jsonResource.read(nodeId: 2);
+      expect(node, isNull);
+      expect(await jsonResource.read(), equals('[]'));
     });
 
     test('delete by nodeId', () async {
-      await jsonResource.create('[]');
-      var status = await jsonResource.delete(nodeId: 1);
+      await jsonResource.create('[{}]');
+      var status = await jsonResource.delete(nodeId: 2);
       expect(status, isTrue);
+      var node = await jsonResource.read(nodeId: 2);
+      expect(node, isNull);
+      expect(await jsonResource.read(), equals('[]'));
+    });
+
+    test('update by etag', () async {
+      await jsonResource.create('[]');
+      var etag = await jsonResource.getEtag(1);
+      var status = await jsonResource.update(1, '{}', Insert.Right, etag: etag);
+      expect(status, isTrue);
+    });
+
+    test('update by nodeId', () async {
+      await jsonResource.create('[]');
+      var status = await jsonResource.update(1, '{}', Insert.Right);
+      expect(status, isTrue);
+    });
+
+    test('update non-existent node', () async {
+      await jsonResource.create('[]');
+      var status = await jsonResource.update(5, '{}', Insert.Right);
+      expect(status, isFalse);
     });
 
     tearDown(() {

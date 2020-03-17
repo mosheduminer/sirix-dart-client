@@ -146,32 +146,55 @@ class Client {
 
   Future<String> getEtag(String dbName, DBType dbType, String name,
       {Map<String, String> params}) async {
-    var request = await _httpClient.getUrl(
+    var request = await _httpClient.headUrl(
         sirixUri.replace(path: '$dbName/$name', queryParameters: params));
     request.headers
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Accept', dbType.mime);
     var response = await request.close();
-    var content = await response.transform(utf8.decoder);
-    var data = await content.toList();
     if (response.statusCode != 200) {
-      print(data.join());
+      var error = await response.transform(utf8.decoder).toList();
+      print(error.join());
       return null;
     }
-    return data.join();
+    unawaited(response.drain());
+    return response.headers.value('etag');
   }
 
-  Future<bool> resourceDelete(
-      String dbName, DBType dbType, String name, String etag) async {
-    var request = await _httpClient
-        .deleteUrl(sirixUri.replace(path: '$dbName/$name', query: etag ?? ''));
+  Future<bool> update(String dbName, DBType dbType, String name, int nodeId,
+      String insert, String etag) async {
+    var request = await _httpClient.postUrl(sirixUri
+        .replace(path: '$dbName/$name', queryParameters: {'nodeId': nodeId.toString()}));
+    request.headers
+      ..add('etag', etag)
+      ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
+      ..add('Content-Type', dbType.mime);
+    var response = await request.close();
+    if (response.statusCode != 200) {
+      var error = await response.transform(utf8.decoder).toList();
+      print(error.join());
+      print(response.statusCode);
+      return false;
+    }
+    unawaited(response.drain());
+    return true;
+  }
+
+  Future<bool> resourceDelete(String dbName, DBType dbType, String name,
+      int nodeId, String etag) async {
+    var request = await _httpClient.deleteUrl(sirixUri.replace(
+        path: '$dbName/$name', query: nodeId == null ? '' : 'nodeId=$nodeId'));
     request.headers
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Content-Type', dbType.mime);
+    if (etag != null) {
+      request.headers.add('ETag', etag);
+    }
     var response = await request.close();
     if (response.statusCode != 204) {
       var error = await response.transform(utf8.decoder).toList();
       print(error.join());
+      print(response.statusCode);
       return false;
     }
     unawaited(response.drain());
