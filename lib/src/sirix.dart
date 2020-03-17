@@ -1,3 +1,5 @@
+import 'package:sirix/src/xml_database.dart';
+
 import './json_database.dart';
 import './data_classes.dart';
 import './auth.dart';
@@ -14,6 +16,10 @@ class Sirix {
 
   JsonDatabase jsonDatabase(String name) {
     return JsonDatabase(name, databasesInfo, _client);
+  }
+
+  XmlDatabase xmlDatabase(String name) {
+    return XmlDatabase(name, databasesInfo, _client);
   }
 
   Future<bool> getInfo() async {
