@@ -253,6 +253,12 @@ void main() {
       expect(result, equals('{"rest":[6]}'));
     });
 
+    test('Resource class query', () async {
+      var result = await jsonResource
+          .query('let \$nodeKey := sdb:nodekey(.=>foo[[2]])\nreturn \$nodeKey');
+      expect(result, equals('{"rest":[6]}'));
+    });
+
     tearDown(() async {
       await sirix.deleteEverything();
       client.close();

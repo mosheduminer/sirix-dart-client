@@ -37,14 +37,16 @@ class Sirix {
   }
 
   Future<String> query(String query,
-      {int startResultSeqIndex, int endResultSeqIndex}) {
+      {int startResultSeqIndex, int endResultSeqIndex}) async {
     var queryObj = {
       'query': query,
       'startResultSeqIndex': startResultSeqIndex,
       'endResultSeqIndex': endResultSeqIndex
     };
     queryObj.removeWhere((key, value) => value == null);
-    return _client.postQuery(jsonEncode(queryObj));
+    var stream = await _client.postQuery(jsonEncode(queryObj));
+    var data = await stream?.toList();
+    return data?.join();
   }
 
   Future<bool> deleteEverything() async {

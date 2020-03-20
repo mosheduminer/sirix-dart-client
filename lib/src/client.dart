@@ -28,22 +28,6 @@ class Client {
     return jsonDecode(stringData) as Map;
   }
 
-  Future<String> postQuery(String query) async {
-    var request = await _httpClient.postUrl(sirixUri);
-    request.headers
-        .add('authorization', 'Bearer ${_auth.tokenData.access_token}');
-    request.write(query);
-    var response = await request.close();
-    var content = await response.transform(utf8.decoder);
-    var data = await content.toList();
-    var stringData = data.join();
-    if (response.statusCode != 200) {
-      print(stringData);
-      return null;
-    }
-    return stringData;
-  }
-
   Future<bool> deleteAllDatabases() async {
     var request = await _httpClient.deleteUrl(sirixUri);
     request.headers
@@ -138,14 +122,14 @@ class Client {
     return data.join();
   }
 
-  /// this function intentionally does not unwrap the stream of data before
+  /// the following three functions intentionally do not unwrap the stream of data before
   /// returning. instead, the stream itself is returned. This is so it is
   /// possible to make process the stream as it comes in, rather than waiting
   /// for a potentially long stream of data to finish. For this reason, the
   /// consumers of this method should also provide an optional raw stream
   /// implementation.
   Future<Stream<String>> readResource(String dbName, DBType dbType, String name,
-      {Map<String, String> params}) async {
+      {Map<String, dynamic> params}) async {
     var request = await _httpClient.getUrl(
         sirixUri.replace(path: '$dbName/$name', queryParameters: params));
     request.headers
@@ -158,6 +142,21 @@ class Client {
       return null;
     }
     return await response.transform(utf8.decoder);
+  }
+
+  Future<Stream<String>> postQuery(String query) async {
+    var request = await _httpClient.postUrl(sirixUri);
+    request.headers
+      ..add('authorization', 'Bearer ${_auth.tokenData.access_token}');
+    request.write(query);
+    var response = await request.close();
+    var content = await response.transform(utf8.decoder);
+    if (response.statusCode != 200) {
+      var data = await content.toList();
+      print(data.join());
+      return null;
+    }
+    return content;
   }
 
   Future<String> getEtag(String dbName, DBType dbType, String name,

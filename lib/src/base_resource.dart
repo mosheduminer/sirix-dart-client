@@ -77,6 +77,20 @@ class BaseResource {
     return _client.readResource(dbName, dbType, name, params: params);
   }
 
+  Future<String> query(String queryString,
+      {int startResultSeqIndex, int endResultSeqIndex}) async {
+    var query = {
+      'query': queryString,
+      'startResultSeqIndex': startResultSeqIndex,
+      'endResultSeqIndex': endResultSeqIndex
+    };
+    query.removeWhere((key, value) => value == null);
+    var stream =
+        await _client.readResource(dbName, dbType, name, params: query);
+    var data = await stream?.toList();
+    return data?.join();
+  }
+
   Future<String> getEtag(int nodeId,
       {int revision, DateTime revisionTimestamp}) {
     var params = {
