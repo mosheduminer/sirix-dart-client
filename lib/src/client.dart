@@ -28,6 +28,22 @@ class Client {
     return jsonDecode(stringData) as Map;
   }
 
+  Future<String> postQuery(String query) async {
+    var request = await _httpClient.postUrl(sirixUri);
+    request.headers
+        .add('authorization', 'Bearer ${_auth.tokenData.access_token}');
+    request.write(query);
+    var response = await request.close();
+    var content = await response.transform(utf8.decoder);
+    var data = await content.toList();
+    var stringData = data.join();
+    if (response.statusCode != 200) {
+      print(stringData);
+      return null;
+    }
+    return stringData;
+  }
+
   Future<bool> deleteAllDatabases() async {
     var request = await _httpClient.deleteUrl(sirixUri);
     request.headers
@@ -162,13 +178,15 @@ class Client {
   }
 
   Future<bool> update(String dbName, DBType dbType, String name, int nodeId,
-      String insert, String etag) async {
-    var request = await _httpClient.postUrl(sirixUri
-        .replace(path: '$dbName/$name', queryParameters: {'nodeId': nodeId.toString()}));
+      String data, String insert, String etag) async {
+    var request = await _httpClient.postUrl(sirixUri.replace(
+        path: '$dbName/$name',
+        queryParameters: {'nodeId': nodeId.toString(), 'insert': insert}));
     request.headers
       ..add('ETag', etag)
       ..add('Authorization', 'Bearer ${_auth.tokenData.access_token}')
       ..add('Content-Type', dbType.mime);
+    request.write(data);
     var response = await request.close();
     if (response.statusCode != 200) {
       var error = await response.transform(utf8.decoder).toList();

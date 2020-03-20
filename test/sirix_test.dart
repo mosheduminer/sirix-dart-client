@@ -199,19 +199,23 @@ void main() {
     test('update by etag', () async {
       await jsonResource.create('[]');
       var etag = await jsonResource.getEtag(1);
-      var status = await jsonResource.update(1, '{}', Insert.Right, etag: etag);
+      var status = await jsonResource.update(1, '{}', Insert.Child, etag: etag);
       expect(status, isTrue);
+      var ret = await jsonResource.read();
+      expect(ret, equals('[{}]'));
     });
 
     test('update by nodeId', () async {
       await jsonResource.create('[]');
-      var status = await jsonResource.update(1, '{}', Insert.Right);
+      var status = await jsonResource.update(1, '{}', Insert.Child);
       expect(status, isTrue);
+      var ret = await jsonResource.read();
+      expect(ret, equals('[{}]'));
     });
 
     test('update non-existent node', () async {
       await jsonResource.create('[]');
-      var status = await jsonResource.update(5, '{}', Insert.Right);
+      var status = await jsonResource.update(5, '{}', Insert.Child);
       expect(status, isFalse);
     });
 

@@ -21,7 +21,7 @@ class BaseResource {
       {String etag}) async {
     etag ??= await getEtag(nodeId);
     return await _client.update(
-        dbName, dbType, name, nodeId, insert.value, etag);
+        dbName, dbType, name, nodeId, data, insert.value, etag);
   }
 
   Future<dynamic> read(
