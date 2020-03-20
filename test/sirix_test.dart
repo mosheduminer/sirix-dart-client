@@ -60,6 +60,7 @@ void main() {
       var status = await sirix.getInfo();
       expect(status, isTrue);
     });
+
     tearDown(() {
       client.close();
     });
@@ -219,8 +220,41 @@ void main() {
       expect(status, isFalse);
     });
 
-    tearDown(() {
-      sirix.deleteEverything();
+    tearDown(() async {
+      await sirix.deleteEverything();
+      client.close();
+    });
+  });
+
+  group('XQuery tests', () {
+    HttpClient client;
+    Auth auth;
+    Sirix sirix;
+    JsonDatabase jsonDatabase;
+    JsonResource jsonResource;
+
+    setUp(() async {
+      client = HttpClient(
+          context: SecurityContext()..setTrustedCertificates(certificatePath));
+      auth = Auth(sirixUri, login, client);
+      sirix = Sirix(sirixUri, auth);
+      await auth.authenticate();
+      jsonDatabase = sirix.jsonDatabase('First');
+      jsonResource = jsonDatabase.resource('testJsonResource');
+      await jsonResource.create('''{"foo": ["bar", null, 2.33],
+                   "bar": { "hello": "world", "helloo": true },
+                   "baz": "hello",
+                   "tada": [{"foo":"bar"},{"baz":false},"boo",{},[]]}''');
+    });
+
+    test('Sirix class query', () async {
+      var result = await sirix
+          .query('let \$nodeKey := sdb:nodekey(.=>foo[[2]])\nreturn \$nodeKey');
+      expect(result, equals('{"rest":[6]}'));
+    });
+
+    tearDown(() async {
+      await sirix.deleteEverything();
       client.close();
     });
   });

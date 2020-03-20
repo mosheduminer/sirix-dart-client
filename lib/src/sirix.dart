@@ -4,6 +4,8 @@ import './data_classes.dart';
 import './auth.dart';
 import './client.dart';
 
+import 'dart:convert';
+
 class Sirix {
   Sirix(String sirixUri, Auth auth) {
     this.sirixUri = Uri.parse(sirixUri);
@@ -32,6 +34,17 @@ class Sirix {
       return false;
     }
     return true;
+  }
+
+  Future<String> query(String query,
+      {int startResultSeqIndex, int endResultSeqIndex}) {
+    var queryObj = {
+      'query': query,
+      'startResultSeqIndex': startResultSeqIndex,
+      'endResultSeqIndex': endResultSeqIndex
+    };
+    queryObj.removeWhere((key, value) => value == null);
+    return _client.postQuery(jsonEncode(queryObj));
   }
 
   Future<bool> deleteEverything() async {
