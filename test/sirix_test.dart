@@ -248,8 +248,8 @@ void main() {
     });
 
     test('Sirix class query', () async {
-      var result = await sirix
-          .query('let \$nodeKey := sdb:nodekey(.=>foo[[2]])\nreturn \$nodeKey');
+      var result = await sirix.query(
+          "let \$nodeKey := sdb:nodekey(sdb:doc('First','testJsonResource')=>foo[[2]])\nreturn \$nodeKey");
       expect(result, equals('{"rest":[6]}'));
     });
 
