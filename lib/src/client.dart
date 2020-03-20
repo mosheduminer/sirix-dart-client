@@ -122,7 +122,7 @@ class Client {
     return data.join();
   }
 
-  /// the following three functions intentionally do not unwrap the stream of data before
+  /// the following two functions intentionally do not unwrap the stream of data before
   /// returning. instead, the stream itself is returned. This is so it is
   /// possible to make process the stream as it comes in, rather than waiting
   /// for a potentially long stream of data to finish. For this reason, the
