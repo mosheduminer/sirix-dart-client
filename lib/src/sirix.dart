@@ -49,6 +49,17 @@ class Sirix {
     return data?.join();
   }
 
+  Future<Stream<String>> queryAsStream(String query,
+      {int startResultSeqIndex, int endResultSeqIndex}) {
+    var queryObj = {
+      'query': query,
+      'startResultSeqIndex': startResultSeqIndex,
+      'endResultSeqIndex': endResultSeqIndex
+    };
+    queryObj.removeWhere((key, value) => value == null);
+    return _client.postQuery(jsonEncode(queryObj));
+  }
+
   Future<bool> deleteEverything() async {
     return await _client.deleteAllDatabases();
   }

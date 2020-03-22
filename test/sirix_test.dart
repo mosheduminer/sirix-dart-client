@@ -253,10 +253,22 @@ void main() {
       expect(result, equals('{"rest":[6]}'));
     });
 
+    test('Sirix class queryAsStream', () async {
+      var stream = await sirix.queryAsStream(
+          "let \$nodeKey := sdb:nodekey(sdb:doc('First','testJsonResource')=>foo[[2]])\nreturn \$nodeKey");
+      expect(stream, emits('{"rest":[6]}'));
+    });
+
     test('Resource class query', () async {
       var result = await jsonResource
           .query('let \$nodeKey := sdb:nodekey(.=>foo[[2]])\nreturn \$nodeKey');
       expect(result, equals('{"rest":[6]}'));
+    });
+
+    test('Resource class queryAsStream', () async {
+      var stream = await jsonResource.queryAsStream(
+          'let \$nodeKey := sdb:nodekey(.=>foo[[2]])\nreturn \$nodeKey');
+      expect(stream, emits('{"rest":[6]}'));
     });
 
     tearDown(() async {

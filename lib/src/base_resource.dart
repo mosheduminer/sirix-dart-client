@@ -91,6 +91,17 @@ class BaseResource {
     return data?.join();
   }
 
+  Future<Stream<String>> queryAsStream(String queryString,
+      {int startResultSeqIndex, int endResultSeqIndex}) {
+    var query = {
+      'query': queryString,
+      'startResultSeqIndex': startResultSeqIndex,
+      'endResultSeqIndex': endResultSeqIndex
+    };
+    query.removeWhere((key, value) => value == null);
+    return _client.readResource(dbName, dbType, name, params: query);
+  }
+
   Future<String> getEtag(int nodeId,
       {int revision, DateTime revisionTimestamp}) {
     var params = {
